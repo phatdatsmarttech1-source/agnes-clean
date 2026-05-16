@@ -14,7 +14,7 @@ export default function Home() {
       body: JSON.stringify({ prompt: input }),
     });
     const data = await res.json();
-    setResult(data.text);
+    return res.status(200).json({ reply: text });  // ĐÚNG
     setLoading(false);
   }
 
