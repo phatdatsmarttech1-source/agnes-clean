@@ -17,7 +17,7 @@ export default function Home() {
     });
     
     const data = await res.json();
-    setResult(data.reply); // Gemini trả về {reply: "..."}
+    setResult(data.reply);
     setLoading(false);
   }
 
