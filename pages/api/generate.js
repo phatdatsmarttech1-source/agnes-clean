@@ -1,30 +1,26 @@
-import OpenAI from 'openai';
-
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-
+// pages/api/generate.js
 export default async function handler(req, res) {
+  if (req.method!== 'POST') return res.status(405).json({ error: 'Chỉ chấp nhận POST' });
+
   const { prompt } = req.body;
-  const day = new Date().getDay();
-  const pillars = {
-    1: "Pillar 1: Phong thủy & Công năng phòng khách",
-    2: "Pillar 2: So sánh Smarthome có dây vs không dây", 
-    3: "Pillar 3: Chuyện khách hàng Thanh Hóa",
-    4: "Pillar 4: Giải pháp nhà thông minh cho biệt thự",
-    5: "Pillar 5: Công trình thật tại Thanh Hóa của Phát Đạt SmartTech",
-    6: "Pillar 6: Mẹo dùng nhà thông minh",
-    0: "Pillar 7: Tầm nhìn Phát Đạt SmartTech 2026"
-  };
-  
-  const completion = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
-    messages: [{
-      role: "system",
-      content: `Bạn là Agnes, trợ lý content cho Phát Đạt SmartTech tại Thanh Hóa. 
-      Hôm nay là ${pillars[day]}. Viết bài Facebook 300 chữ, giọng văn chuyên gia, 
-      cuối bài có CTA inbox Phát Đạt SmartTech. Chủ đề: ${prompt}`
-    },
-    { role: "user", content: prompt }],
-  });
-  
-  res.status(200).json({ text: completion.choices[0].message.content });
+  const API_KEY = process.env.GEMINI_API_KEY;
+  if (!API_KEY) return res.status(500).json({ error: 'Chưa cấu hình GEMINI_API_KEY' });
+
+  const systemPrompt = `Bạn là Agnes, trợ lý AI của Phát Đạt SmartTech. Nhiệm vụ: Viết content Facebook chuẩn 7 Pillar, giọng văn hài hước, gần gũi, chuyên về nhà thông minh. 7 Pillar: 1.Giáo dục 2.Giải trí 3.Truyền cảm hứng 4.Tương tác 5.Quảng bá 6.UGC 7.Hậu trường. Luôn xưng "Agnes", gọi khách là "sếp". Kết bài kêu gọi inbox Phát Đạt SmartTech.`;
+
+  try {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: `${systemPrompt}\n\nYêu cầu của sếp: ${prompt}` }] }]
+      })
+    });
+    const data = await response.json();
+    if (data.error) return res.status(500).json({ error: data.error.message });
+    const text = data.candidates[0].content.parts[0].text;
+    return res.status(200).json({ reply: text });
+  } catch (error) {
+    return res.status(500).json({ error: 'Lỗi gọi Gemini: ' + error.message });
+  }
 }
