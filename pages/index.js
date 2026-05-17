@@ -1,11 +1,11 @@
 import { useState } from 'react';
 
 export default function Home() {
-  const [input, setInput] = useState('');
+  const [prompt, setPrompt] = useState('');
   const [result, setResult] = useState('');
   const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setResult('');
@@ -13,30 +13,30 @@ export default function Home() {
     const res = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ prompt: input }),
+      body: JSON.stringify({ prompt }),
     });
     
     const data = await res.json();
-    setResult(data.reply);
+    setResult(data.result);
     setLoading(false);
-  }
+  };
 
   return (
-    <div style={{ padding: 40, fontFamily: 'sans-serif' }}>
-      <h1>Agnes - Trợ lý Phát Đạt SmartTech</h1>
+    <div style={{ padding: 40, fontFamily: 'sans-serif', maxWidth: 600, margin: '0 auto' }}>
+      <h1>Agnes - Trợ lý AI Phát Đạt SmartTech</h1>
       <form onSubmit={handleSubmit}>
-        <input
-          value={input}
-          onChange={e => setInput(e.target.value)}
-          placeholder="Agnes, viết bài hôm nay"
-          style={{ width: 300, padding: 8 }}
+        <textarea
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          rows="4"
+          style={{ width: '100%', padding: 10 }}
+          placeholder="Bạn muốn Agnes viết gì?"
         />
-        <button type="submit" disabled={loading} style={{ marginLeft: 8, padding: 8 }}>
-          {loading ? 'Đang viết...' : 'Gửi'}
+        <button type="submit" disabled={loading} style={{ marginTop: 10, padding: '10px 20px' }}>
+          {loading ? 'Agnes đang viết...' : 'Gửi cho Agnes'}
         </button>
       </form>
       {result && <div style={{ marginTop: 20, whiteSpace: 'pre-wrap' }}>{result}</div>}
     </div>
   );
-} [Code] [Blame] 41 lines... [Raw] [Copy] [Download] [✏️] 
-                                                   ↑ Bấm đây
+}
