@@ -38,4 +38,5 @@ export default function Home() {
       {result && <div style={{ marginTop: 20, whiteSpace: 'pre-wrap' }}>{result}</div>}
     </div>
   );
-} 
+} [Code] [Blame] 41 lines... [Raw] [Copy] [Download] [✏️] 
+                                                   ↑ Bấm đây
